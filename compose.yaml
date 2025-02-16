@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - hf-cache:/root/.cache/huggingface/
+    command: api.py
+
+volumes:
+  hf-cache
