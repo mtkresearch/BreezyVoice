@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from io import BytesIO
 
 import torchaudio
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from g2pw import G2PWConverter
 from pydantic import BaseModel, Field
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
         description="Specifies the path to the prompt speech audio file of the speaker.",
     )
     speaker_prompt_text_transcription: str = Field(
-        default="在密碼學中，加密是將明文資訊改變為難以讀取的密文內容，使之不可讀的方法。",
+        default="在密碼學中，加密是將明文資訊改變為難以讀取的密文內容，使之不可讀的方法。只有擁有解密方法的對象，經由解密過程，才能將密文還原為正常可讀的內容。",
         description="Specifies the transcription of the speaker prompt audio.",
     )
 
@@ -65,27 +65,27 @@ async def get_models():
 
 
 @app.post("/audio/speech")
-async def speach_endpoint(request: SpeechRequest):
-    ###normalization
+async def speach_endpoint(request: Request, payload: SpeechRequest):
+    # normalization
     speaker_prompt_text_transcription = (
         request.app.state.cosyvoice.frontend.text_normalize_new(
-            request.app.state.speaker_prompt_text_transcription, split=False
+            request.app.state.settings.speaker_prompt_text_transcription, split=False
         )
     )
     content_to_synthesize = request.app.state.cosyvoice.frontend.text_normalize_new(
-        request.input, split=False
+        payload.input, split=False
     )
     speaker_prompt_text_transcription_bopomo = get_bopomofo_rare(
-        speaker_prompt_text_transcription, app.state.bopomofo_converter
+        speaker_prompt_text_transcription, request.app.state.bopomofo_converter
     )
 
     content_to_synthesize_bopomo = get_bopomofo_rare(
-        content_to_synthesize, app.state.bopomofo_converter
+        content_to_synthesize, request.app.state.bopomofo_converter
     )
-    output = app.state.cosyvoice.inference_zero_shot_no_normalize(
+    output = request.app.state.cosyvoice.inference_zero_shot_no_normalize(
         content_to_synthesize_bopomo,
         speaker_prompt_text_transcription_bopomo,
-        app.state.prompt_speech_16k,
+        request.app.state.prompt_speech_16k,
     )
     audio_buffer = BytesIO()
     torchaudio.save(audio_buffer, output["tts_speech"], 22050, format="wav")
