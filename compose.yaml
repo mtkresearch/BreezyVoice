@@ -8,4 +8,4 @@ services:
     command: api.py
 
 volumes:
-  hf-cache
+  hf-cache:
