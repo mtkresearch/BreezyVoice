@@ -6,6 +6,12 @@ services:
     volumes:
       - hf-cache:/root/.cache/huggingface/
     command: api.py
-
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 volumes:
   hf-cache:
