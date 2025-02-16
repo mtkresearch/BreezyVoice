@@ -1,5 +1,6 @@
 services:
   app:
+    image: breezyvoice:latest
     build: .
     ports:
       - "8080:8080"
