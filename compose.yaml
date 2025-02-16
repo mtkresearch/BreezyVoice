@@ -6,6 +6,7 @@ services:
     volumes:
       - hf-cache:/root/.cache/huggingface/
     command: api.py
+    init: true
     deploy:
       resources:
         reservations:
