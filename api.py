@@ -60,8 +60,18 @@ app = FastAPI(lifespan=lifespan, root_path="/v1")
 
 
 @app.get("/models")
-async def get_models():
-    return {"message": "List of available models"}
+async def get_models(request: Request):
+    return {
+        "object": "list",
+        "data": [
+            {
+                "id": request.app.state.settings.model_path,
+                "object": "model",
+                "created": 0,
+                "owned_by": "local",
+            }
+        ],
+    }
 
 
 @app.post("/audio/speech")
