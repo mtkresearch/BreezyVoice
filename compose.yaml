@@ -1,0 +1,19 @@
+services:
+  app:
+    image: breezyvoice:latest
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - hf-cache:/root/.cache/huggingface/
+    command: api.py
+    init: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+volumes:
+  hf-cache:

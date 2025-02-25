@@ -154,6 +154,15 @@ python batch_inference.py \
   --output_audio_folder ./results
 ```
 
+### Docker and OpenAI Compatible API
+
+``` bash
+$ docker compose up -d --build
+# after the container is up
+$ pip install openai
+$ python openai_api_inference.py
+```
+
 ---
 
 If you like our work, please cite:
