@@ -198,6 +198,8 @@ class CustomCosyVoiceModel(CosyVoiceModel):
      
 ###CosyVoice
 class CustomCosyVoice:
+    
+    SPLIT_PUNCTUATION_REGEX = r'(?<=[；;？！。.?!])\s*'
 
     def __init__(self, model_dir):
         #assert os.path.exists(model_dir), f"model path '{model_dir}' not exist, please check the path: pretrained_models/CosyVoice-300M-zhtw"
@@ -252,7 +254,7 @@ class CustomCosyVoice:
             flow_prompt_speech_16k = prompt_speech_16k
         prompt_text = prompt_text
         tts_speeches = []
-        for i in re.split(r'(?<=[？！。.?!])\s*', tts_text):
+        for i in re.split(CustomCosyVoice.SPLIT_PUNCTUATION_REGEX, tts_text):
             if not len(i):
                 continue
             model_input = self.frontend.frontend_zero_shot_dual(i, prompt_text, prompt_speech_16k, flow_prompt_text, flow_prompt_speech_16k)
@@ -266,7 +268,7 @@ class CustomCosyVoice:
     def inference_zero_shot_no_normalize(self, tts_text, prompt_text, prompt_speech_16k):
         prompt_text = prompt_text
         tts_speeches = []
-        for i in re.split(r'(?<=[？！。.?!])\s*', tts_text):
+        for i in re.split(CustomCosyVoice.SPLIT_PUNCTUATION_REGEX, tts_text):
             if not len(i):
                 continue
             print("Synthesizing:",i)
