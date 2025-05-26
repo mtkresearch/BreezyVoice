@@ -225,6 +225,7 @@ class CustomCosyVoice:
         if not os.path.exists(model_dir):
             model_dir = snapshot_download(model_dir)
         print("model", model_dir)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model_dir = model_dir
         
         with open('{}/cosyvoice.yaml'.format(model_dir), 'r') as f:
@@ -527,17 +528,13 @@ def main_customized():
 def add_spk():
     ####args
     parser = argparse.ArgumentParser(description="Run BreezyVoice text-to-speech with custom inputs")
-    parser.add_argument("--content_to_synthesize", type=str, required=True, help="Specifies the content that will be synthesized into speech.")
     parser.add_argument("--speaker_prompt_audio_path", type=str, required=True, help="Specifies the path to the prompt speech audio file of the speaker.")
     parser.add_argument("--speaker_prompt_text_transcription", type=str, required=False, help="Specifies the transcription of the speaker prompt audio (Highly Recommended, if not provided, the system will fall back to transcribing with Whisper.)")
-    
-    parser.add_argument("--output_path", type=str, required=False, default="results/output.wav", help="Specifies the name and path for the output .wav file.")
     
     parser.add_argument("--model_path", type=str, required=False, default = "models",help="Specifies the model used for speech synthesis.")
     parser.add_argument("--spk_id", type=str, required=False, default = "test_human",help="spk's name")
     args = parser.parse_args()
     speaker_prompt_audio_path = args.speaker_prompt_audio_path
-    content_to_synthesize = args.content_to_synthesize
 
     if args.speaker_prompt_text_transcription:
         speaker_prompt_text_transcription = args.speaker_prompt_text_transcription
@@ -557,7 +554,7 @@ def remove_spk():
     cosyvoice.remove_spk(args.spk_id)
 
 if __name__ == "__main__":
-    main_customized()
+    main()
 
 
 
