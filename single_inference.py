@@ -295,12 +295,13 @@ class CustomCosyVoice:
         return ret
 
     def inference_sft(self, tts_text, spk_id):
-        tts_speeches = []
-        for i in self.frontend.text_normalize(tts_text, split=True):
-            model_input = self.frontend.frontend_sft(i, spk_id)
+        for i in re.split(r'(?<=[？！。.?!])\s*', tts_text):
+            if not len(i):
+                continue
+            print("Synthesizing:",i)
+            model_input = self.frontend.frontend_customized(i, spk_id)
             model_output = self.model.inference(**model_input)
-            tts_speeches.append(model_output['tts_speech'])
-        return {'tts_speech': torch.concat(tts_speeches, dim=1)}
+            yield model_output
 
     def inference_zero_shot(self, tts_text, prompt_text, prompt_speech_16k):
         prompt_text = self.frontend.text_normalize(prompt_text, split=False)
