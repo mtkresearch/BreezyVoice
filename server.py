@@ -16,8 +16,10 @@ import sys
 import argparse
 import logging
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
-from fastapi import FastAPI, UploadFile, Form, File
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, UploadFile, Form, File, Request
+from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import numpy as np
@@ -37,12 +39,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"])
 
+# 掛載靜態文件
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 def generate_data(model_output):
     for i in model_output:
         tts_audio = (i['tts_speech'].numpy() * (2 ** 15)).astype(np.int16).tobytes()
         yield tts_audio
 
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/inference_sft")
 @app.post("/inference_sft")
@@ -55,7 +63,6 @@ async def inference_sft(tts_text: str = Form(), spk_id: str = Form()):
     model_output = cosyvoice.inference_sft(content_to_synthesize_bopomo, spk_id)
     return StreamingResponse(generate_data(model_output))
 
-
 @app.get("/inference_zero_shot")
 @app.post("/inference_zero_shot")
 async def inference_zero_shot(tts_text: str = Form(), prompt_text: str = Form(), prompt_wav: UploadFile = File()):
@@ -63,7 +70,42 @@ async def inference_zero_shot(tts_text: str = Form(), prompt_text: str = Form(),
     model_output = cosyvoice.inference_zero_shot(tts_text, prompt_text, prompt_speech_16k)
     return StreamingResponse(generate_data(model_output))
 
+@app.post("/add_speaker")
+async def add_speaker(
+    spk_id: str = Form(),
+    prompt_wav: UploadFile = File(),
+    prompt_text: str = Form(None)
+):
+    try:
+        prompt_speech_16k = load_wav(prompt_wav.file, 16000)
+        
+        if not prompt_text:
+            from single_inference import transcribe_audio
+            prompt_text = transcribe_audio(prompt_wav.file)
+        
+        spk_info = cosyvoice.cal_spk_info(prompt_wav.file, prompt_text)
+        cosyvoice.add_spk(spk_id, spk_info)
+        
+        return {"status": "success", "message": f"Speaker {spk_id} added successfully"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
+@app.post("/remove_speaker")
+async def remove_speaker(spk_id: str = Form()):
+    try:
+        cosyvoice.remove_spk(spk_id)
+        return {"status": "success", "message": f"Speaker {spk_id} removed successfully"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/get_speakers")
+async def get_speakers():
+    try:
+        # 這裡需要實現獲取說話者列表的邏輯
+        # 暫時返回空列表
+        return list(cosyvoice.get_spks())
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
