@@ -239,19 +239,10 @@ class CustomCosyVoice:
                                           instruct,
                                           configs['allowed_special'])
         self.model = CosyVoiceModel(configs['llm'], configs['flow'], configs['hift'])
-        self.spks = self.get_spks()
         self.model.load('{}/llm.pt'.format(model_dir),
                         '{}/flow.pt'.format(model_dir),
                         '{}/hift.pt'.format(model_dir))
         del configs
-
-    def get_spks(self):
-        model_name = f"{self.model_dir}/spk2info.pt"
-        data = torch.load(model_name, map_location=self.device)
-        spks = data.keys()
-        del data  # 釋放載入的數據
-        torch.cuda.empty_cache()  # 清空 GPU 快取
-        return spks
     
     def list_avaliable_spks(self):
         spks = list(self.frontend.spk2info.keys())
@@ -260,46 +251,26 @@ class CustomCosyVoice:
     def remove_spk(self, spk_id):
         # 載入原始的 pt 檔案
         model_name = f"{self.model_dir}/spk2info.pt"
-        data = torch.load(model_name, map_location=self.device)
 
-        # 確保是字典型別，否則拋出例外
-        if not isinstance(data, dict):
-            raise TypeError(f"The loaded data is of type {type(data)}, expected a dictionary.")
-
-        if spk_id in data:
-            del data[spk_id]
+        if spk_id in self.frontend.spk2info:
+            del self.frontend.spk2info[spk_id]
 
         # 儲存到新的 pt 檔案
-        torch.save(data, model_name)
-        self.spks = data.keys()
-        print(data.keys())
+        torch.save(self.frontend.spk2info, model_name)
+        print(self.frontend.spk2info.keys())
         print(f"刪除Speaker成功: {spk_id}")
         
-        # 釋放記憶體
-        del data
-        torch.cuda.empty_cache()
     
     def add_spk(self, spk_id, spk_info):
         # 載入原始的 pt 檔案
         model_name = f"{self.model_dir}/spk2info.pt"
-        data = torch.load(model_name, map_location=self.device)
-
-        # 確保是字典型別，否則拋出例外
-        if not isinstance(data, dict):
-            raise TypeError(f"The loaded data is of type {type(data)}, expected a dictionary.")
-
-        # 加入新的鍵值對
-        data[spk_id] = spk_info
+        self.frontend.spk2info[spk_id] = spk_info
 
         # 儲存到新的 pt 檔案
-        torch.save(data, model_name)
-        self.spks = data.keys()
-        print(data.keys())
+        torch.save(self.frontend.spk2info, model_name)
+        print(self.frontend.spk2info.keys())
         print(f"新增Speaker成功，儲存為 {spk_id}")
         
-        # 釋放記憶體
-        del data
-        torch.cuda.empty_cache()
 
     def cal_spk_info(self, audio_path, prompt_text):
         prompt_speech_16k = load_wav(audio_path, 16000)

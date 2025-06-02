@@ -77,17 +77,30 @@ async def add_speaker(
     prompt_text: str = Form(None)
 ):
     try:
-        prompt_speech_16k = load_wav(prompt_wav.file, 16000)
+        # Save the uploaded file temporarily
+        temp_file_path = f"/tmp/{prompt_wav.filename}"
+        with open(temp_file_path, "wb") as buffer:
+            content = await prompt_wav.read()
+            buffer.write(content)
+        
+        # Process the saved file
+        prompt_speech_16k = load_wav(temp_file_path, 16000)
         
         if not prompt_text:
             from single_inference import transcribe_audio
-            prompt_text = transcribe_audio(prompt_wav.file)
+            prompt_text = transcribe_audio(temp_file_path)
         
-        spk_info = cosyvoice.cal_spk_info(prompt_wav.file, prompt_text)
+        spk_info = cosyvoice.cal_spk_info(temp_file_path, prompt_text)
         cosyvoice.add_spk(spk_id, spk_info)
+        
+        # Clean up the temporary file
+        os.remove(temp_file_path)
         
         return {"status": "success", "message": f"Speaker {spk_id} added successfully"}
     except Exception as e:
+        # Clean up the temporary file in case of error
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
         return {"status": "error", "message": str(e)}
 
 @app.post("/remove_speaker")
@@ -103,7 +116,7 @@ async def get_speakers():
     try:
         # 這裡需要實現獲取說話者列表的邏輯
         # 暫時返回空列表
-        return list(cosyvoice.get_spks())
+        return list(cosyvoice.list_avaliable_spks())
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
