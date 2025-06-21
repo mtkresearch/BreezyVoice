@@ -79,7 +79,7 @@ export PYTHONUTF8=1
 
 - `--speaker_prompt_text_transcription` (optional):
   - **Description**: Specifies the transcription of the speaker prompt audio. Providing this input is highly recommended for better accuracy. If not provided, the system will automatically transcribe the audio using Whisper.
-  - Example text for the audio file: `"在密碼學中，加密是將明文資訊改變為難以讀取的密文內容，使之不可讀的方法。"`
+  - Example text for the audio file: `"在密碼學中，加密是將明文資訊改變為難以讀取的密文內容，使之不可讀的方法。只有擁有解密方法的對象,經由解密過程才能將密文還原為正常可讀的內容。"`
 
 - `--output_path` (optional):
   - **Description**: Specifies the name and path for the output `.wav` file. If not provided, the default path is used.
@@ -98,7 +98,7 @@ bash run_single_inference.sh
 
 ``` python
 # python single_inference.py --text_to_speech [text to be converted into audio] --text_prompt [the prompt of that audio file] --audio_path [reference audio file]
-python single_inference.py --content_to_synthesize "今天天氣真好" --speaker_prompt_text_transcription "在密碼學中，加密是將明文資訊改變為難以讀取的密文內容，使之不可讀的方法。" --speaker_prompt_audio_path "./data/example.wav"
+python single_inference.py --content_to_synthesize "今天天氣真好" --speaker_prompt_text_transcription "在密碼學中，加密是將明文資訊改變為難以讀取的密文內容，使之不可讀的方法。只有擁有解密方法的對象,經由解密過程才能將密文還原為正常可讀的內容。" --speaker_prompt_audio_path "./data/example.wav"
 ```
 
 ``` python
