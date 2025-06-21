@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     )
 
     model_path: str = Field(
-        default="MediaTek-Research/BreezyVoice-300M",
+        default="MediaTek-Research/BreezyVoice",
         description="Specifies the model used for speech synthesis.",
     )
     speaker_prompt_audio_path: str = Field(
