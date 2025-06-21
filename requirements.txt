@@ -18,6 +18,7 @@ onnxruntime-gpu==1.16.0; sys_platform == 'linux'
 openai-whisper==20231117
 protobuf==4.25
 pydantic==2.7.0
+pydantic-settings==2.7.0
 rich==13.7.1
 soundfile==0.12.1
 tensorboard==2.14.0
