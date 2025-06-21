@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreezyVoice TTS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">BreezyVoice TTS</h1>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">預訓練模式</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="sftForm">
+                            <div class="mb-3">
+                                <label for="sftText" class="form-label">輸入文字</label>
+                                <textarea class="form-control" id="sftText" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sftSpeaker" class="form-label">選擇音色</label>
+                                <select class="form-select" id="sftSpeaker" required>
+                                    <option value="">請選擇音色...</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">生成語音</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#speakerListCollapse">
+                <h5 class="card-title mb-0">音色列表</h5>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="collapse" id="speakerListCollapse">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="speakerSearch" placeholder="搜尋音色...">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>音色ID</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="speakerList">
+                                <!-- 音色列表將由JavaScript動態填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">新增音色</h5>
+            </div>
+            <div class="card-body">
+                <form id="addSpeakerForm">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="speakerId" class="form-label">音色ID</label>
+                                <input type="text" class="form-control" id="speakerId" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="speakerAudio" class="form-label">音訊文件</label>
+                                <input type="file" class="form-control" id="speakerAudio" accept="audio/*" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="speakerText" class="form-label">音訊對應文字（選填）</label>
+                                <input type="text" class="form-control" id="speakerText">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">新增音色</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">生成的語音</h5>
+            </div>
+            <div class="card-body">
+                <audio id="audioPlayer" controls class="w-100"></audio>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html> 
